@@ -66,8 +66,7 @@
 	</repositories>
 
 	<scm>
-		<developerConnection>scm:svn:https://openpos.googlecode.com/svn/trunk/openpos-parent</developerConnection>
-		<connection>http://openpos.googlecode.com/svn/trunk/openpos-parent</connection>
+		<developerConnection>scm:git:ssh://git@github.com:/grundid/openpos.git</developerConnection>
 	</scm>
 
 	<build>
