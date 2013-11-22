@@ -1,0 +1,34 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>openpos-parent</artifactId>
+		<groupId>org.openpos</groupId>
+		<version>2.4-SNAPSHOT</version>
+		<relativePath>../</relativePath>
+	</parent>
+	<artifactId>openpos-print</artifactId>
+	<packaging>jar</packaging>
+	<dependencies>
+		<dependency>
+			<groupId>jpos</groupId>
+			<artifactId>jpos</artifactId>
+			<version>1121</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.barcode4j</groupId>
+			<artifactId>barcode4j</artifactId>
+			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openpos</groupId>
+			<artifactId>openpos-api</artifactId>
+			<version>2.4-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.rxtx</groupId>
+			<artifactId>rxtx</artifactId>
+			<version>${org.rxtx-version}</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+</project>
