@@ -4,6 +4,7 @@ import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.JFrame;
 import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 
@@ -85,15 +86,18 @@ public class StartPOS implements Runnable {
 		}
 		AppView appView = null;
 		String screenmode = config.getProperty("machine.screenmode");
+		JFrame frame = null;
 		if ("fullscreen".equals(screenmode)) {
 			JRootKiosk rootkiosk = new JRootKiosk();
 			appView = rootkiosk.initFrame(config);
+			frame = rootkiosk;
 		}
 		else {
 			JRootFrame rootframe = new JRootFrame();
 			appView = rootframe.initFrame(config);
+			frame = rootframe;
 		}
-		legacyFactory.initAppView(appView);
+		legacyFactory.initAppView(appView, frame);
 		monthyReports.startReporting();
 		wifiService.initAppView(appView);
 	}

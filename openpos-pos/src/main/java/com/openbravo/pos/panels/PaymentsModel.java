@@ -16,7 +16,6 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with Openbravo POS.  If not, see <http://www.gnu.org/licenses/>.
-
 package com.openbravo.pos.panels;
 
 import java.util.ArrayList;
@@ -32,6 +31,8 @@ import com.openbravo.data.loader.Datas;
 import com.openbravo.data.loader.SerializableRead;
 import com.openbravo.data.loader.SerializerReadBasic;
 import com.openbravo.data.loader.SerializerReadClass;
+import com.openbravo.data.loader.SerializerWrite;
+import com.openbravo.data.loader.SerializerWriteBasic;
 import com.openbravo.data.loader.SerializerWriteString;
 import com.openbravo.data.loader.Session;
 import com.openbravo.data.loader.StaticSentence;
@@ -50,70 +51,64 @@ public class PaymentsModel {
 	private int m_iSeq;
 	private Date m_dDateStart;
 	private Date m_dDateEnd;
-
 	private Integer m_iPayments;
 	private Double m_dPaymentsTotal;
 	private java.util.List<PaymentsLine> m_lpayments;
-
 	private final static String[] PAYMENTHEADERS = { "Label.Payment", "label.totalcash" };
-
 	private Integer m_iSales;
 	private Double m_dSalesBase;
 	private Double m_dSalesTaxes;
 	private java.util.List<SalesLine> m_lsales;
-
 	private final static String[] SALEHEADERS = { "label.taxcash", "label.totalcash", "label.totalnet" };
 
 	private PaymentsModel() {
 	}
 
 	public static PaymentsModel emptyInstance() {
-
 		PaymentsModel p = new PaymentsModel();
-
 		p.m_iPayments = new Integer(0);
 		p.m_dPaymentsTotal = new Double(0.0);
 		p.m_lpayments = new ArrayList<PaymentsLine>();
-
 		p.m_iSales = null;
 		p.m_dSalesBase = null;
 		p.m_dSalesTaxes = null;
 		p.m_lsales = new ArrayList<SalesLine>();
-
 		return p;
 	}
 
 	public static PaymentsModel getInstance(String host, Date startDate, Date endDate) {
-
 		PaymentsModel p = new PaymentsModel();
 		p.m_sHost = host;
 		p.m_dDateStart = startDate;
 		p.m_dDateEnd = endDate;
-
 		p.m_iPayments = new Integer(0);
 		p.m_dPaymentsTotal = new Double(0.0);
 		p.m_lpayments = new ArrayList<PaymentsLine>();
-
 		p.m_iSales = null;
 		p.m_dSalesBase = null;
 		p.m_dSalesTaxes = null;
 		p.m_lsales = new ArrayList<SalesLine>();
-
 		return p;
 	}
 
 	public static PaymentsModel loadInstance(AppView app) throws BasicException {
-
 		PaymentsModel p = new PaymentsModel();
-
 		// Propiedades globales
 		p.m_sHost = app.getProperties().getHost();
 		p.m_iSeq = app.getActiveCashSequence();
 		p.m_dDateStart = app.getActiveCashDateStart();
 		p.m_dDateEnd = null;
-
 		loadDataFromDatabaseIntoModel(app.getSession(), app.getActiveCashIndex(), p);
+		return p;
+	}
 
+	public static PaymentsModel loadInstance(AppView app, Date startDate, Date endDate) throws BasicException {
+		PaymentsModel p = new PaymentsModel();
+		p.m_sHost = app.getProperties().getHost();
+		p.m_iSeq = app.getActiveCashSequence();
+		p.m_dDateStart = startDate;
+		p.m_dDateEnd = endDate;
+		loadDataFromDatabaseIntoModel(app.getSession(), app.getActiveCashIndex(), p, startDate, endDate);
 		return p;
 	}
 
@@ -127,15 +122,12 @@ public class PaymentsModel {
 				monthPaymentsModel.m_dSalesBase);
 		finalPaymentsModel.m_dSalesTaxes = sumNullableDouble(finalPaymentsModel.m_dSalesTaxes,
 				monthPaymentsModel.m_dSalesTaxes);
-
 		sumPayments(finalPaymentsModel, monthPaymentsModel);
 		sumTaxes(finalPaymentsModel, monthPaymentsModel);
-
 	}
 
 	private static void sumTaxes(PaymentsModel finalPaymentsModel, PaymentsModel monthPaymentsModel) {
 		for (SalesLine salesLine : finalPaymentsModel.m_lsales) {
-
 			for (Iterator<SalesLine> it = monthPaymentsModel.m_lsales.iterator(); it.hasNext();) {
 				SalesLine monthPaymentsLine = it.next();
 				if (salesLine.m_SalesTaxName.equals(monthPaymentsLine.m_SalesTaxName)) {
@@ -146,12 +138,10 @@ public class PaymentsModel {
 		}
 		for (SalesLine salesLine : monthPaymentsModel.m_lsales)
 			finalPaymentsModel.m_lsales.add(salesLine);
-
 	}
 
 	private static void sumPayments(PaymentsModel finalPaymentsModel, PaymentsModel monthPaymentsModel) {
 		for (PaymentsLine paymentsLine : finalPaymentsModel.m_lpayments) {
-
 			for (Iterator<PaymentsLine> it = monthPaymentsModel.m_lpayments.iterator(); it.hasNext();) {
 				PaymentsLine monthPaymentsLine = it.next();
 				if (paymentsLine.m_PaymentType.equals(monthPaymentsLine.m_PaymentType)) {
@@ -189,7 +179,6 @@ public class PaymentsModel {
 				+ "FROM PAYMENTS, RECEIPTS " + "WHERE PAYMENTS.RECEIPT = RECEIPTS.ID AND RECEIPTS.MONEY = ?",
 				SerializerWriteString.INSTANCE, new SerializerReadBasic(new Datas[] { Datas.INT, Datas.DOUBLE }))
 				.find(activeCashIndex);
-
 		if (valtickets == null) {
 			p.m_iPayments = new Integer(0);
 			p.m_dPaymentsTotal = new Double(0.0);
@@ -198,20 +187,17 @@ public class PaymentsModel {
 			p.m_iPayments = (Integer)valtickets[0];
 			p.m_dPaymentsTotal = (Double)valtickets[1];
 		}
-
 		List<PaymentsLine> l = new StaticSentence(session, "SELECT PAYMENTS.PAYMENT, SUM(PAYMENTS.TOTAL) "
 				+ "FROM PAYMENTS, RECEIPTS " + "WHERE PAYMENTS.RECEIPT = RECEIPTS.ID AND RECEIPTS.MONEY = ? "
 				+ "GROUP BY PAYMENTS.PAYMENT", SerializerWriteString.INSTANCE, new SerializerReadClass(
 				PaymentsModel.PaymentsLine.class)) //new SerializerReadBasic(new Datas[] {Datas.STRING, Datas.DOUBLE}))
 				.list(activeCashIndex);
-
 		if (l == null) {
 			p.m_lpayments = new ArrayList<PaymentsLine>();
 		}
 		else {
 			p.m_lpayments = l;
 		}
-
 		// Sales
 		Object[] recsales = (Object[])new StaticSentence(session,
 				"SELECT COUNT(DISTINCT RECEIPTS.ID), SUM(TICKETLINES.UNITS * TICKETLINES.PRICE) "
@@ -226,7 +212,6 @@ public class PaymentsModel {
 			p.m_iSales = (Integer)recsales[0];
 			p.m_dSalesBase = (Double)recsales[1];
 		}
-
 		// Taxes
 		Object[] rectaxes = (Object[])new StaticSentence(session, "SELECT SUM(TAXLINES.AMOUNT) "
 				+ "FROM RECEIPTS, TAXLINES WHERE RECEIPTS.ID = TAXLINES.RECEIPT AND RECEIPTS.MONEY = ?",
@@ -238,13 +223,78 @@ public class PaymentsModel {
 		else {
 			p.m_dSalesTaxes = (Double)rectaxes[0];
 		}
-
 		List<SalesLine> asales = new StaticSentence(
 				session,
 				"SELECT TAXCATEGORIES.NAME, SUM(TAXLINES.AMOUNT), TAXES.RATE "
 						+ "FROM RECEIPTS, TAXLINES, TAXES, TAXCATEGORIES WHERE RECEIPTS.ID = TAXLINES.RECEIPT AND TAXLINES.TAXID = TAXES.ID AND TAXES.CATEGORY = TAXCATEGORIES.ID "
 						+ "AND RECEIPTS.MONEY = ?" + " GROUP BY TAXCATEGORIES.NAME", SerializerWriteString.INSTANCE,
 				new SerializerReadClass(PaymentsModel.SalesLine.class)).list(activeCashIndex);
+		if (asales == null) {
+			p.m_lsales = new ArrayList<SalesLine>();
+		}
+		else {
+			p.m_lsales = asales;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static void loadDataFromDatabaseIntoModel(Session session, String activeCashIndex, PaymentsModel p,
+			Date startDate, Date endDate) throws BasicException {
+		SerializerWrite<Object[]> serializerWrite = new SerializerWriteBasic(new Datas[] { Datas.STRING,
+				Datas.TIMESTAMP, Datas.TIMESTAMP });
+		Object[] params = { activeCashIndex, startDate, endDate };
+		String whereStatement = "RECEIPTS.MONEY = ? AND DATENEW >= ? AND DATENEW <= ?";
+		Object[] valtickets = (Object[])new StaticSentence(session, "SELECT COUNT(*), SUM(PAYMENTS.TOTAL) "
+				+ "FROM PAYMENTS, RECEIPTS " + "WHERE PAYMENTS.RECEIPT = RECEIPTS.ID AND " + whereStatement,
+				serializerWrite, new SerializerReadBasic(new Datas[] { Datas.INT, Datas.DOUBLE })).find(params);
+		if (valtickets == null) {
+			p.m_iPayments = new Integer(0);
+			p.m_dPaymentsTotal = new Double(0.0);
+		}
+		else {
+			p.m_iPayments = (Integer)valtickets[0];
+			p.m_dPaymentsTotal = (Double)valtickets[1];
+		}
+		List<PaymentsLine> l = new StaticSentence(session, "SELECT PAYMENTS.PAYMENT, SUM(PAYMENTS.TOTAL) "
+				+ "FROM PAYMENTS, RECEIPTS " + "WHERE PAYMENTS.RECEIPT = RECEIPTS.ID AND " + whereStatement
+				+ " GROUP BY PAYMENTS.PAYMENT", serializerWrite, new SerializerReadClass(
+				PaymentsModel.PaymentsLine.class)) //new SerializerReadBasic(new Datas[] {Datas.STRING, Datas.DOUBLE}))
+				.list(params);
+		if (l == null) {
+			p.m_lpayments = new ArrayList<PaymentsLine>();
+		}
+		else {
+			p.m_lpayments = l;
+		}
+		// Sales
+		Object[] recsales = (Object[])new StaticSentence(session,
+				"SELECT COUNT(DISTINCT RECEIPTS.ID), SUM(TICKETLINES.UNITS * TICKETLINES.PRICE) "
+						+ "FROM RECEIPTS, TICKETLINES WHERE RECEIPTS.ID = TICKETLINES.TICKET AND " + whereStatement,
+				serializerWrite, new SerializerReadBasic(new Datas[] { Datas.INT, Datas.DOUBLE })).find(params);
+		if (recsales == null) {
+			p.m_iSales = null;
+			p.m_dSalesBase = null;
+		}
+		else {
+			p.m_iSales = (Integer)recsales[0];
+			p.m_dSalesBase = (Double)recsales[1];
+		}
+		// Taxes
+		Object[] rectaxes = (Object[])new StaticSentence(session, "SELECT SUM(TAXLINES.AMOUNT) "
+				+ "FROM RECEIPTS, TAXLINES WHERE RECEIPTS.ID = TAXLINES.RECEIPT AND " + whereStatement,
+				serializerWrite, new SerializerReadBasic(new Datas[] { Datas.DOUBLE })).find(params);
+		if (rectaxes == null) {
+			p.m_dSalesTaxes = null;
+		}
+		else {
+			p.m_dSalesTaxes = (Double)rectaxes[0];
+		}
+		List<SalesLine> asales = new StaticSentence(
+				session,
+				"SELECT TAXCATEGORIES.NAME, SUM(TAXLINES.AMOUNT), TAXES.RATE "
+						+ "FROM RECEIPTS, TAXLINES, TAXES, TAXCATEGORIES WHERE RECEIPTS.ID = TAXLINES.RECEIPT AND TAXLINES.TAXID = TAXES.ID AND TAXES.CATEGORY = TAXCATEGORIES.ID "
+						+ "AND " + whereStatement + " GROUP BY TAXCATEGORIES.NAME", serializerWrite,
+				new SerializerReadClass(PaymentsModel.SalesLine.class)).list(params);
 		if (asales == null) {
 			p.m_lsales = new ArrayList<SalesLine>();
 		}
@@ -403,7 +453,6 @@ public class PaymentsModel {
 		public Double getTaxes() {
 			return m_SalesTaxes;
 		}
-
 	}
 
 	public AbstractTableModel getSalesModel() {
