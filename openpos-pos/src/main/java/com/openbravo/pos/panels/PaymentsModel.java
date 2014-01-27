@@ -243,7 +243,7 @@ public class PaymentsModel {
 		SerializerWrite<Object[]> serializerWrite = new SerializerWriteBasic(new Datas[] { Datas.STRING,
 				Datas.TIMESTAMP, Datas.TIMESTAMP });
 		Object[] params = { activeCashIndex, startDate, endDate };
-		String whereStatement = "RECEIPTS.MONEY = ? AND DATENEW >= ? AND DATENEW <= ?";
+		String whereStatement = "RECEIPTS.MONEY = ? AND DATENEW >= ? AND DATENEW < ?";
 		Object[] valtickets = (Object[])new StaticSentence(session, "SELECT COUNT(*), SUM(PAYMENTS.TOTAL) "
 				+ "FROM PAYMENTS, RECEIPTS " + "WHERE PAYMENTS.RECEIPT = RECEIPTS.ID AND " + whereStatement,
 				serializerWrite, new SerializerReadBasic(new Datas[] { Datas.INT, Datas.DOUBLE })).find(params);
