@@ -4,18 +4,18 @@
 	<parent>
 		<artifactId>openpos-parent</artifactId>
 		<groupId>org.openpos</groupId>
-		<version>2.4.3-SNAPSHOT</version>
+		<version>2.4.4-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
 	<groupId>org.openpos</groupId>
 	<artifactId>openpos-erp</artifactId>
-	<version>2.4.3-SNAPSHOT</version>
+	<version>2.4.4-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<dependencies>
 		<dependency>
 			<groupId>org.openpos</groupId>
 			<artifactId>openpos-pos</artifactId>
-			<version>2.4.3-SNAPSHOT</version>
+			<version>2.4.4-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
