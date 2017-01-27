@@ -72,6 +72,15 @@ public class ComponentDialog extends javax.swing.JDialog {
 				content.setFromToTime(14 * 60, 18 * 60);
 			}
 		});
+		JButton buttonDay = new JButton();
+		buttonDay.setText("08:00-19:00");
+		buttonDay.addActionListener(new java.awt.event.ActionListener() {
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				content.setFromToTime(8 * 60, 19 * 60);
+			}
+		});
 		setTitle("Zwischenbericht"); // NOI18N
 		setResizable(true);
 		setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.Y_AXIS));
@@ -102,6 +111,7 @@ public class ComponentDialog extends javax.swing.JDialog {
 		});
 		jPanel3.add(buttonVormittag);
 		jPanel3.add(buttonNachmittag);
+		jPanel3.add(buttonDay);
 		jPanel3.add(jcmdOK);
 		jPanel3.add(jcmdCancel);
 		getContentPane().add(content);
