@@ -19,6 +19,10 @@
 
 package com.openbravo.pos.forms;
 
+import com.openbravo.basic.BasicException;
+import com.openbravo.data.loader.Session;
+import com.openbravo.pos.util.AltEncrypter;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -26,9 +30,6 @@ import java.net.URLClassLoader;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import com.openbravo.basic.BasicException;
-import com.openbravo.data.loader.Session;
-import com.openbravo.pos.util.AltEncrypter;
 
 /**
  *
@@ -45,12 +46,8 @@ public class AppViewConnection {
         try{
 
             // register the database driver
-            if (isJavaWebStart()) {
-                Class.forName(props.getProperty("db.driver"), true, Thread.currentThread().getContextClassLoader());
-            } else {
-                ClassLoader cloader = new URLClassLoader(new URL[] {new File(props.getProperty("db.driverlib")).toURI().toURL()});
-                DriverManager.registerDriver(new DriverWrapper((Driver) Class.forName(props.getProperty("db.driver"), true, cloader).newInstance()));
-            }
+            ClassLoader cloader = new URLClassLoader(new URL[] {new File(props.getProperty("db.driverlib")).toURI().toURL()});
+            DriverManager.registerDriver(new DriverWrapper((Driver) Class.forName(props.getProperty("db.driver"), true, cloader).newInstance()));
 
             String sDBUser = props.getProperty("db.user");
             String sDBPassword = props.getProperty("db.password");        
@@ -75,13 +72,4 @@ public class AppViewConnection {
         }   
     }
 
-    private static boolean isJavaWebStart() {
-
-        try {
-            Class.forName("javax.jnlp.ServiceManager");
-            return true;
-        } catch (ClassNotFoundException ue) {
-            return false;
-        }
-    }
 }

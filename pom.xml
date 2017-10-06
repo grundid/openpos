@@ -53,11 +53,6 @@
 	</dependencies>
 
 	<repositories>
-		<repository>
-			<id>maven@googlecode</id>
-			<name>Internal Maven Repo for missing artifacts</name>
-			<url>http://openpos.googlecode.com/svn/maven-repo/</url>
-		</repository>
 		<!-- For developing against latest Spring milestones -->
 		<repository>
 			<id>org.springframework.maven.milestone</id>
